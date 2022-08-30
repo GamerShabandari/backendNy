@@ -41,6 +41,7 @@ io.on("connection", function (socket) {
       users : [nickname]
     }
     roomArray.push(newRoom)
+    socket.join(roomToJoin);
 
   });
 
