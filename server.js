@@ -34,7 +34,17 @@ io.on("connection", function (socket) {
 
   socket.on("joinNewRoom", (roomToJoin, nickname) => {
 
-    console.log(nickname);
+    for (let i = 0; i < roomArray.length; i++) {
+      const room = roomArray[i];
+
+      if (room.roomName === roomToJoin) {
+        socket.join(roomToJoin);
+        return
+      }
+      
+    }
+
+    //console.log(nickname);
     let newRoom = {
       roomName : roomToJoin,
       users : [nickname],
