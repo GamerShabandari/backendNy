@@ -8,7 +8,7 @@ const socketIo = require("socket.io");
 const picturesArray = require("./assets/fields.json");
 let colorsArray = require("./assets/colorPicker.json");
 let facitArray = require("./assets/facit.json");
-const { log } = require("console");
+
 
 
 const io = socketIo(server, {
@@ -44,7 +44,6 @@ io.on("connection", function (socket) {
       
     }
 
-    //console.log(nickname);
     let newRoom = {
       roomName : roomToJoin,
       users : [nickname],
@@ -62,6 +61,7 @@ io.on("connection", function (socket) {
 
       if (room.roomName == roomToJoin) {
         room.users.push(nickname)
+        socket.join(roomToJoin);
         console.log(room);
         return
       }
@@ -74,7 +74,6 @@ io.on("connection", function (socket) {
       const room = roomArray[i];
       if (room.roomName === roomToGet) {
         console.log("du ville ha all info från rum: " + room.roomName);
-        console.log(room.facit);
         io.emit("hereIsYourRoom", room);
         return
       }
@@ -122,9 +121,13 @@ io.on("connection", function (socket) {
   });
 
 
+  let testArray = [];
+
   socket.on("chatt", function (room, user, message) {
     //io.emit("chatting", room, user, message);
-    io.in(room).emit("chatting", user, message)
+    testArray.push({room: room, nickname: user, text: message});
+    console.log(testArray);
+    io.in(room).emit("chatting", testArray)
     return;
   });
 
