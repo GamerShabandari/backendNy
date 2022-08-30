@@ -7,7 +7,6 @@ const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
 const picturesArray = require("./assets/fields.json");
 let colorsArray = require("./assets/colorPicker.json");
-const { log } = require("console");
 
 
 const io = socketIo(server, {
@@ -30,8 +29,6 @@ io.on("connection", function (socket) {
   if (roomArray.length > 0) {
     io.emit("availableRooms", roomArray);
   }
-  
-
 
   socket.on("joinNewRoom", (roomToJoin, nickname) => {
 
@@ -60,17 +57,12 @@ io.on("connection", function (socket) {
     }
   });
 
-  
-
-  
-
   socket.on("disconnect", function () {
     console.log("user disconnected");
   });
 
-  
-
   socket.on("color", function (msg) {
+
     for (let i = 0; i < colorsArray.length; i++) {
       const color = colorsArray[i];
 
