@@ -7,6 +7,7 @@ const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
 const picturesArray = require("./assets/fields.json");
 let colorsArray = require("./assets/colorPicker.json");
+let facitArray = require("./assets/facit.json");
 const { log } = require("console");
 
 
@@ -30,15 +31,14 @@ io.on("connection", function (socket) {
   if (roomArray.length > 0) {
     io.emit("availableRooms", roomArray);
   }
-  
-
 
   socket.on("joinNewRoom", (roomToJoin, nickname) => {
 
     console.log(nickname);
     let newRoom = {
       roomName : roomToJoin,
-      users : [nickname]
+      users : [nickname],
+      facit : [...facitArray]
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
@@ -46,7 +46,6 @@ io.on("connection", function (socket) {
   });
 
   socket.on("joinAvailableRoom", (roomToJoin, nickname) => {
-
 
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
@@ -60,8 +59,17 @@ io.on("connection", function (socket) {
     }
   });
 
-  
-
+  socket.on("getMyRoom", function (roomToGet) {
+    for (let i = 0; i < roomArray.length; i++) {
+      const room = roomArray[i];
+      if (room.roomName === roomToGet) {
+        console.log("du ville ha all info från rum: " + room.roomName);
+        console.log(room.facit);
+        io.emit("hereIsYourRoom", room);
+        return
+      }
+    }
+  });
   
 
   socket.on("disconnect", function () {
@@ -69,7 +77,6 @@ io.on("connection", function (socket) {
   });
 
   
-
   socket.on("color", function (msg) {
     for (let i = 0; i < colorsArray.length; i++) {
       const color = colorsArray[i];
@@ -103,6 +110,15 @@ io.on("connection", function (socket) {
       io.emit("drawing", msg);
     }
   });
+
+
+  socket.on("chatt", function (room, user, message) {
+    //io.emit("chatting", room, user, message);
+    io.in(room).emit("chatting", user, message)
+    return;
+  });
+
+
 });
 
 server.listen(port, () => {
