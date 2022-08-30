@@ -1,0 +1,6 @@
+POST http://localhost:3001/rooms
+Content-Type: application/json
+
+{
+    "room": "test room7"
+}
