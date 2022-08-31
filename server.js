@@ -41,15 +41,15 @@ io.on("connection", function (socket) {
         socket.join(roomToJoin);
         return
       }
-      
+
     }
 
     let newRoom = {
-      roomName : roomToJoin,
-      users : [nickname],
-      facit : [...facitArray],
-      fields : [...picturesArray],
-      colors : [...colorsArray]
+      roomName: roomToJoin,
+      users: [nickname],
+      facit: [...facitArray],
+      fields: [...picturesArray],
+      colors: [...colorsArray]
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
@@ -65,9 +65,11 @@ io.on("connection", function (socket) {
         room.users.push(nickname)
         socket.join(roomToJoin);
         console.log(room);
+        //io.emit("history", picturesArray);
+        io.in(roomToJoin).emit("history", room.fields)
         return
       }
-      
+
     }
   });
 
@@ -81,13 +83,13 @@ io.on("connection", function (socket) {
       }
     }
   });
-  
+
 
   socket.on("disconnect", function () {
     console.log("user disconnected");
   });
 
-  
+
   socket.on("color", function (msg) {
     for (let i = 0; i < colorsArray.length; i++) {
       const color = colorsArray[i];
@@ -112,42 +114,26 @@ io.on("connection", function (socket) {
 
   socket.on("drawing", function (field, roomX) {
 
-
     for (let i = 0; i < roomArray.length; i++) {
-      //const room = roomArray[i];
 
       if (roomArray[i].roomName === roomX) {
-      //  console.log(roomArray[i].roomName);
-      //  console.log(roomArray[i]);
+
         let thisRoom = roomArray[i]
 
         for (let i = 0; i < thisRoom.fields.length; i++) {
           const pixel = thisRoom.fields[i];
-    
+
           if (pixel.position == field.position) {
             pixel.color = field.color;
+
+          //  io.emit("drawing", pixel);
+            io.in(roomX).emit("drawing", pixel)
+           // console.log(field);
+            return
           }
-    
-          
         }
-
-        io.emit("drawing", pixel);
-          console.log(field);
-        
-       
       }
-      
     }
-
-    // for (let i = 0; i < picturesArray.length; i++) {
-    //   const pixel = picturesArray[i];
-
-    //   if (pixel.position == msg.position) {
-    //     pixel.color = msg.color;
-    //   }
-
-    //   io.emit("drawing", msg);
-    // }
   });
 
 
@@ -155,11 +141,11 @@ io.on("connection", function (socket) {
 
   socket.on("chatt", function (room, user, message) {
     //io.emit("chatting", room, user, message);
-   //testArray.push({room: room, nickname: user, text: message});
-   let newMsg = {nickname: user, text: message}
-   // console.log(testArray);
-    
-   io.in(room).emit("chatting", newMsg)
+    //testArray.push({room: room, nickname: user, text: message});
+    let newMsg = { nickname: user, text: message }
+    // console.log(testArray);
+
+    io.in(room).emit("chatting", newMsg)
     return;
   });
 
