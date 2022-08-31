@@ -26,8 +26,8 @@ app.use(bodyParser.json());
 
 io.on("connection", function (socket) {
   console.log("a user connected");
-  io.emit("history", picturesArray);
-  io.emit("colors", colorsArray);
+  //io.emit("history", picturesArray);
+  //io.emit("colors", colorsArray);
   if (roomArray.length > 0) {
     io.emit("availableRooms", roomArray);
   }
@@ -47,7 +47,9 @@ io.on("connection", function (socket) {
     let newRoom = {
       roomName : roomToJoin,
       users : [nickname],
-      facit : [...facitArray]
+      facit : [...facitArray],
+      fields : [...picturesArray],
+      colors : [...colorsArray]
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
@@ -108,26 +110,56 @@ io.on("connection", function (socket) {
     return;
   });
 
-  socket.on("drawing", function (msg) {
-    for (let i = 0; i < picturesArray.length; i++) {
-      const pixel = picturesArray[i];
+  socket.on("drawing", function (field, roomX) {
 
-      if (pixel.position == msg.position) {
-        pixel.color = msg.color;
+
+    for (let i = 0; i < roomArray.length; i++) {
+      //const room = roomArray[i];
+
+      if (roomArray[i].roomName === roomX) {
+      //  console.log(roomArray[i].roomName);
+      //  console.log(roomArray[i]);
+        let thisRoom = roomArray[i]
+
+        for (let i = 0; i < thisRoom.fields.length; i++) {
+          const pixel = thisRoom.fields[i];
+    
+          if (pixel.position == field.position) {
+            pixel.color = field.color;
+          }
+    
+          
+        }
+
+        io.emit("drawing", pixel);
+          console.log(field);
+        
+       
       }
-
-      io.emit("drawing", msg);
+      
     }
+
+    // for (let i = 0; i < picturesArray.length; i++) {
+    //   const pixel = picturesArray[i];
+
+    //   if (pixel.position == msg.position) {
+    //     pixel.color = msg.color;
+    //   }
+
+    //   io.emit("drawing", msg);
+    // }
   });
 
 
-  let testArray = [];
+  //let testArray = [];
 
   socket.on("chatt", function (room, user, message) {
     //io.emit("chatting", room, user, message);
-    testArray.push({room: room, nickname: user, text: message});
-    console.log(testArray);
-    io.in(room).emit("chatting", testArray)
+   //testArray.push({room: room, nickname: user, text: message});
+   let newMsg = {nickname: user, text: message}
+   // console.log(testArray);
+    
+   io.in(room).emit("chatting", newMsg)
     return;
   });
 
