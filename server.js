@@ -26,8 +26,6 @@ app.use(bodyParser.json());
 
 io.on("connection", function (socket) {
   console.log("a user connected");
-  //io.emit("history", picturesArray);
-  //io.emit("colors", colorsArray);
   if (roomArray.length > 0) {
     io.emit("availableRooms", roomArray);
   }
@@ -47,9 +45,9 @@ io.on("connection", function (socket) {
     let newRoom = {
       roomName: roomToJoin,
       users: [nickname],
-      facit: [...facitArray],
-      fields: [...picturesArray],
-      colors: [...colorsArray]
+      facit: [],
+      fields: [],
+      colors: []
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
@@ -65,7 +63,7 @@ io.on("connection", function (socket) {
         room.users.push(nickname)
         socket.join(roomToJoin);
         console.log(room);
-        //io.emit("history", picturesArray);
+
         io.in(roomToJoin).emit("history", room.fields)
         return
       }
@@ -77,6 +75,11 @@ io.on("connection", function (socket) {
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
       if (room.roomName === roomToGet) {
+
+        room.fields = picturesArray;
+        console.log("picturesarray", picturesArray);
+        room.facit = facitArray;
+        room.colors = colorsArray;
         console.log("du ville ha all info från rum: " + room.roomName);
         io.emit("hereIsYourRoom", room);
         return
