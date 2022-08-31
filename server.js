@@ -32,15 +32,15 @@ io.on("connection", function (socket) {
 
   socket.on("joinNewRoom", (roomToJoin, nickname) => {
 
-    for (let i = 0; i < roomArray.length; i++) {
-      const room = roomArray[i];
+    // for (let i = 0; i < roomArray.length; i++) {
+    //   const room = roomArray[i];
 
-      if (room.roomName === roomToJoin) {
-        socket.join(roomToJoin);
-        return
-      }
+    //   if (room.roomName === roomToJoin) {
+    //     socket.join(roomToJoin);
+    //     return
+    //   }
 
-    }
+    // }
 
     let newRoom = {
       roomName: roomToJoin,
