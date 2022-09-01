@@ -37,8 +37,7 @@ io.on("connection", function (socket) {
       if (roomToJoin == room.roomName) {
         room.users.push(nickname)
         socket.join(roomToJoin);
-        //io.in(roomToJoin).emit("history", nickname, room.fields)
-        io.emit("history", room.fields, nickname);
+        io.in(roomToJoin).emit("history", room.fields)
         console.log("du joinar tidigare rum: " + roomToJoin);
         return
       }
