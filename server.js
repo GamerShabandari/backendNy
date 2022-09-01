@@ -5,9 +5,9 @@ const cors = require("cors");
 const server = require("http").createServer(app);
 const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
-const picturesArray = require("./assets/fields.json");
 let colorsArray = require("./assets/colorPicker.json");
 let facitArray = require("./assets/facit.json");
+let fieldsStartArray = require("./assets/fields.json");
 
 
 
@@ -30,46 +30,37 @@ io.on("connection", function (socket) {
     io.emit("availableRooms", roomArray);
   }
 
-  socket.on("joinNewRoom", (roomToJoin, nickname) => {
+  socket.on("join", (roomToJoin, nickname) => {
+
+    for (let i = 0; i < roomArray.length; i++) {
+      const room = roomArray[i];
+      if (roomToJoin == room.roomName) {
+        room.users.push(nickname)
+        socket.join(roomToJoin);
+        //io.in(roomToJoin).emit("history", nickname, room.fields)
+        io.emit("history", room.fields, nickname);
+        console.log("du joinar tidigare rum: " + roomToJoin);
+        return
+      }
+    }
 
     let newRoom = {
       roomName: roomToJoin,
       users: [nickname],
-      facit: [],
-      fields: [],
-      colors: []
+      facit: facitArray,
+      fields: fieldsStartArray,
+      colors: colorsArray
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
+    console.log("du joinar nytt rum: " + roomToJoin);
 
-  });
-
-  socket.on("joinAvailableRoom", (roomToJoin, nickname) => {
-
-    for (let i = 0; i < roomArray.length; i++) {
-      const room = roomArray[i];
-
-      if (room.roomName == roomToJoin) {
-        room.users.push(nickname)
-        socket.join(roomToJoin);
-        console.log(room);
-
-        io.in(roomToJoin).emit("history", room.fields)
-        return
-      }
-
-    }
   });
 
   socket.on("getMyRoom", function (roomToGet) {
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
       if (room.roomName === roomToGet) {
-
-        room.fields = picturesArray;
-        console.log("picturesarray", picturesArray);
-        room.facit = facitArray;
-        room.colors = colorsArray;
         console.log("du ville ha all info från rum: " + room.roomName);
         io.emit("hereIsYourRoom", room);
         return
@@ -105,32 +96,32 @@ io.on("connection", function (socket) {
     return;
   });
 
-  socket.on("drawing", function (field, roomX) {
+  socket.on("draw", function (fieldToDraw, roomToDraw) {
 
     for (let i = 0; i < roomArray.length; i++) {
+      const room = roomArray[i];
 
-      if (roomArray[i].roomName === roomX) {
+      if (room.roomName == roomToDraw) {
 
-        let thisRoom = roomArray[i]
+        for (let i = 0; i < room.fields.length; i++) {
+          const pixel = room.fields[i];
 
-        for (let i = 0; i < thisRoom.fields.length; i++) {
-          const pixel = thisRoom.fields[i];
+          if (pixel.position === fieldToDraw.position) {
+            pixel.color = fieldToDraw.color;
 
-          if (pixel.position == field.position) {
-            pixel.color = field.color;
-
-          //  io.emit("drawing", pixel);
-            io.in(roomX).emit("drawing", pixel)
-           // console.log(field);
+            io.in(roomToDraw).emit("drawing", fieldToDraw)
             return
+
           }
+
         }
+
       }
+
     }
   });
 
 
-  //let testArray = [];
 
   socket.on("chatt", function (room, user, message) {
     //io.emit("chatting", room, user, message);
