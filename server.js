@@ -61,17 +61,11 @@ io.on("connection", function (socket) {
       const room = roomArray[i];
       if (room.roomName === roomToGet) {
         console.log("du ville ha all info från rum: " + room.roomName);
-        io.emit("hereIsYourRoom", room);
+        io.in(roomToGet).emit("hereIsYourRoom", room)
         return
       }
     }
   });
-
-
-  socket.on("disconnect", function () {
-    console.log("user disconnected");
-  });
-
 
   socket.on("color", function (msg) {
     for (let i = 0; i < colorsArray.length; i++) {
@@ -120,18 +114,15 @@ io.on("connection", function (socket) {
     }
   });
 
-
-
   socket.on("chatt", function (room, user, message) {
-    //io.emit("chatting", room, user, message);
-    //testArray.push({room: room, nickname: user, text: message});
     let newMsg = { nickname: user, text: message }
-    // console.log(testArray);
-
     io.in(room).emit("chatting", newMsg)
     return;
   });
 
+  socket.on("disconnect", function () {
+    console.log("user disconnected");
+  });
 
 });
 
