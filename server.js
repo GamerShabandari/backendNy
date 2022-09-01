@@ -133,6 +133,11 @@ io.on("connection", function (socket) {
     return;
   });
 
+  socket.on("allWhite", function (room, fieldsArray) {
+    fieldsArray = fieldsStartArray;
+      io.in(room).emit("allWhiteReset", fieldsArray);
+    return;
+  });
 
 });
 
