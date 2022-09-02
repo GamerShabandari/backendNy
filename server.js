@@ -36,6 +36,7 @@ io.on("connection", function (socket) {
       if (roomToJoin == room.roomName) {
         room.users.push(nickname)
         socket.join(roomToJoin);
+        //console.log(room);
         io.in(roomToJoin).emit("history", room.fields)
         console.log("du joinar tidigare rum: " + roomToJoin);
         return
@@ -46,13 +47,13 @@ io.on("connection", function (socket) {
       roomName: roomToJoin,
       users: [nickname],
       facit: facitArray,
-      fields: fieldsStartArray,
-      colors: colorsArray
+      fields: [...fieldsStartArray],
+      colors: [...colorsArray]
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
     console.log("du joinar nytt rum: " + roomToJoin);
-
+    //console.log(newRoom);
   });
 
   socket.on("getMyRoom", function (roomToGet) {
@@ -89,8 +90,6 @@ io.on("connection", function (socket) {
 
   socket.on("colorChange", function (colorToChange, fromRoom) {
 
-
-
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
 
@@ -116,7 +115,7 @@ io.on("connection", function (socket) {
 
           if (pixel.position === fieldToDraw.position) {
             pixel.color = fieldToDraw.color;
-
+            console.log(fieldsStartArray);
             io.in(roomToDraw).emit("drawing", fieldToDraw)
             return
 
