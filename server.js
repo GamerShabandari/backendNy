@@ -10,7 +10,6 @@ let facitArray = require("./assets/facit.json");
 let fieldsStartArray = require("./assets/fields.json");
 
 
-
 const io = socketIo(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -67,26 +66,42 @@ io.on("connection", function (socket) {
     }
   });
 
-  socket.on("color", function (msg) {
-    for (let i = 0; i < colorsArray.length; i++) {
-      const color = colorsArray[i];
+  socket.on("color", function (colorFromRoom, fromRoom) {
 
-      if (color.color === msg) {
-        colorsArray.splice(i, 1);
+    for (let i = 0; i < roomArray.length; i++) {
+      const room = roomArray[i];
 
-        io.emit("updateColors", colorsArray);
-        return;
+      if (room.roomName === fromRoom) {
+
+        for (let i = 0; i < room.colors.length; i++) {
+          const color = room.colors[i];
+
+          if (color.color === colorFromRoom) {
+            room.colors.splice(i, 1);
+
+            io.in(fromRoom).emit("updateColors", room.colors)
+            return;
+          }
+        }
       }
     }
   });
 
-  socket.on("colorChange", function (msg) {
-    console.log(msg);
-    colorsArray.push({ color: msg });
-    io.emit("updateColors", colorsArray);
-    console.log(colorsArray);
+  socket.on("colorChange", function (colorToChange, fromRoom) {
 
-    return;
+
+
+    for (let i = 0; i < roomArray.length; i++) {
+      const room = roomArray[i];
+
+      if (room.roomName === fromRoom) {
+
+        room.colors.push({ color: colorToChange });
+        io.in(fromRoom).emit("updateColors", room.colors)
+        return;
+      }
+    }
+
   });
 
   socket.on("draw", function (fieldToDraw, roomToDraw) {
