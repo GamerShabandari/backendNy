@@ -21,11 +21,11 @@ const io = socketIo(server, {
 
 let roomArray = [];
 
- function getFields() {
+function getFields() {
   const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
   //console.log(data);
   return (data);
-  
+
 
 };
 
@@ -141,6 +141,33 @@ io.on("connection", function (socket) {
     io.in(room).emit("chatting", newMsg)
     return;
   });
+
+  socket.on("timeToCheckFacit", function (roomToCheck) {
+
+    for (let i = 0; i < roomArray.length; i++) {
+      const room = roomArray[i];
+
+      if (room.roomName == roomToCheck) {
+
+        let count = [0, 0];
+        for (let i in room.facit) {
+          count[1]++; // total count
+          if (room.fields[i].color === room.facit[i].color) {
+            if (room.fields[i].color === "white" && room.facit[i].color === "white") {
+              count[1]--;
+            } else {
+              count[0]++;
+            } // match count
+          }
+        }
+        let percentage = (count[0] / count[1]) * 100 + "%";
+        io.in(roomToCheck).emit("gameOver", percentage)
+        return;
+
+      }
+    }
+  });
+
 
   socket.on("disconnect", function () {
     console.log("user disconnected");
