@@ -8,6 +8,7 @@ const socketIo = require("socket.io");
 let colorsArray = require("./assets/colorPicker.json");
 let facitArray = require("./assets/facit.json");
 let fieldsStartArray = require("./assets/fields.json");
+const fs = require('fs');
 
 
 const io = socketIo(server, {
@@ -19,6 +20,14 @@ const io = socketIo(server, {
 });
 
 let roomArray = [];
+
+ function getFields() {
+  const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
+  //console.log(data);
+  return (data);
+  
+
+};
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -47,7 +56,8 @@ io.on("connection", function (socket) {
       roomName: roomToJoin,
       users: [nickname],
       facit: facitArray,
-      fields: [...fieldsStartArray],
+      fields: getFields(),
+     // fields: [...fieldsStartArray],
       colors: [...colorsArray]
     }
     roomArray.push(newRoom)
