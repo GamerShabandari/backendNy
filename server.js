@@ -23,10 +23,7 @@ let roomArray = [];
 
 function getFields() {
   const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
-  //console.log(data);
   return (data);
-
-
 };
 
 app.use(cors());
@@ -43,12 +40,21 @@ io.on("connection", function (socket) {
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
       if (roomToJoin == room.roomName) {
-        room.users.push(nickname)
-        socket.join(roomToJoin);
-        //console.log(room);
-        io.in(roomToJoin).emit("history", room.fields)
-        console.log("du joinar tidigare rum: " + roomToJoin);
-        return
+
+        if (room.roomIsFull === false && room.gameOver === false) {
+          room.users.push(nickname)
+          socket.join(roomToJoin);
+          io.in(roomToJoin).emit("history", room.fields)
+
+          if (room.users.length == 4) {
+            room.roomIsFull = true;
+          }
+          return
+        } else{
+          io.emit("fullRoom", roomToJoin, nickname.nickname)
+          return
+        }
+        
       }
     }
 
@@ -57,18 +63,19 @@ io.on("connection", function (socket) {
       users: [nickname],
       facit: facitArray,
       fields: getFields(),
-      colors: [...colorsArray]
+      colors: [...colorsArray],
+      roomIsFull: false,
+      gameOver: false
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
-    console.log("du joinar nytt rum: " + roomToJoin);
+    
   });
 
   socket.on("getMyRoom", function (roomToGet) {
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
       if (room.roomName === roomToGet) {
-        console.log("du ville ha all info från rum: " + room.roomName);
         io.in(roomToGet).emit("hereIsYourRoom", room)
         return
       }
@@ -160,6 +167,7 @@ io.on("connection", function (socket) {
             } // match count
           }
         }
+        room.gameOver = true;
         let percentage = (count[0] / count[1]) * 100 + "%";
         io.in(roomToCheck).emit("gameOver", percentage)
         return;
