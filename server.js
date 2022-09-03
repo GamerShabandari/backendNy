@@ -43,12 +43,23 @@ io.on("connection", function (socket) {
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
       if (roomToJoin == room.roomName) {
-        room.users.push(nickname)
-        socket.join(roomToJoin);
-        //console.log(room);
-        io.in(roomToJoin).emit("history", room.fields)
-        console.log("du joinar tidigare rum: " + roomToJoin);
-        return
+
+        if (room.roomIsFull === false && room.gameOver === false) {
+          room.users.push(nickname)
+          socket.join(roomToJoin);
+          //console.log(room);
+          io.in(roomToJoin).emit("history", room.fields)
+          console.log("du joinar tidigare rum: " + roomToJoin);
+
+          if (room.users.length == 4) {
+            room.roomIsFull = true;
+          }
+          return
+        } else{
+          io.emit("fullRoom", roomToJoin, nickname)
+          return
+        }
+        
       }
     }
 
@@ -57,7 +68,9 @@ io.on("connection", function (socket) {
       users: [nickname],
       facit: facitArray,
       fields: getFields(),
-      colors: [...colorsArray]
+      colors: [...colorsArray],
+      roomIsFull: false,
+      gameOver: false
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
@@ -160,6 +173,7 @@ io.on("connection", function (socket) {
             } // match count
           }
         }
+        room.gameOver = true;
         let percentage = (count[0] / count[1]) * 100 + "%";
         io.in(roomToCheck).emit("gameOver", percentage)
         return;
