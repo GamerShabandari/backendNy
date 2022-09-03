@@ -57,13 +57,11 @@ io.on("connection", function (socket) {
       users: [nickname],
       facit: facitArray,
       fields: getFields(),
-     // fields: [...fieldsStartArray],
       colors: [...colorsArray]
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
     console.log("du joinar nytt rum: " + roomToJoin);
-    //console.log(newRoom);
   });
 
   socket.on("getMyRoom", function (roomToGet) {
