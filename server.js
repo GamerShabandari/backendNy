@@ -5,7 +5,7 @@ const cors = require("cors");
 const server = require("http").createServer(app);
 const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
-let colorsArray = require("./assets/colorPicker.json");
+let colorsStartArray = require("./assets/colorPicker.json");
 let facitArray = require("./assets/facit.json");
 let fieldsStartArray = require("./assets/fields.json");
 const fs = require('fs');
@@ -42,11 +42,13 @@ io.on("connection", function (socket) {
 
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
-      if (roomToJoin == room.roomName) {
+      if (roomToJoin === room.roomName) {
         room.users.push(nickname)
         socket.join(roomToJoin);
+
         //console.log(room);
         io.in(roomToJoin).emit("history", room.fields)
+
         console.log("du joinar tidigare rum: " + roomToJoin);
         return
       }
@@ -56,9 +58,12 @@ io.on("connection", function (socket) {
       roomName: roomToJoin,
       users: [nickname],
       facit: facitArray,
+
       fields: getFields(),
       colors: [...colorsArray]
+
     }
+
     roomArray.push(newRoom)
     socket.join(roomToJoin);
     console.log("du joinar nytt rum: " + roomToJoin);
@@ -75,7 +80,7 @@ io.on("connection", function (socket) {
     }
   });
 
-  socket.on("color", function (colorFromRoom, fromRoom) {
+  socket.on("colorPicked", function (colorFromRoom, fromRoom) {
 
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
@@ -128,11 +133,8 @@ io.on("connection", function (socket) {
             return
 
           }
-
         }
-
       }
-
     }
   });
 
