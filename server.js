@@ -9,6 +9,7 @@ let colorsArray = require("./assets/colorPicker.json");
 let facitArray = require("./assets/facit.json");
 let fieldsStartArray = require("./assets/fields.json");
 const fs = require('fs');
+const { Timer } = require('timer-node');
 
 
 const io = socketIo(server, {
@@ -50,13 +51,18 @@ io.on("connection", function (socket) {
             room.roomIsFull = true;
           }
           return
-        } else{
+        } else {
           io.emit("fullRoom", roomToJoin, nickname.nickname)
           return
         }
-        
+
       }
     }
+
+
+
+    const roomTimerLabel = new Timer({ label: roomToJoin + '-timer' })
+    roomTimerLabel.start();
 
     let newRoom = {
       roomName: roomToJoin,
@@ -65,11 +71,13 @@ io.on("connection", function (socket) {
       fields: getFields(),
       colors: [...colorsArray],
       roomIsFull: false,
-      gameOver: false
+      gameOver: false,
+      time: roomTimerLabel
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
-    
+    console.log(newRoom);
+
   });
 
   socket.on("getMyRoom", function (roomToGet) {
@@ -169,7 +177,17 @@ io.on("connection", function (socket) {
         }
         room.gameOver = true;
         let percentage = (count[0] / count[1]) * 100 + "%";
-        io.in(roomToCheck).emit("gameOver", percentage)
+        room.time.stop();
+        let roomTime = room.time.time()
+        io.in(roomToCheck).emit("gameOver", percentage, roomTime)
+
+
+
+
+        console.log(room.time.time());
+
+        //console.log(room.time);
+
         return;
 
       }
