@@ -22,6 +22,8 @@ const io = socketIo(server, {
 
 let roomArray = [];
 
+let savedDrawingsArray = [];
+
 function getFields() {
   const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
   return (data);
@@ -34,6 +36,10 @@ io.on("connection", function (socket) {
   console.log("a user connected");
   if (roomArray.length > 0) {
     io.emit("availableRooms", roomArray);
+  }
+
+  if (savedDrawingsArray.length > 0) {
+    io.emit("savedDrawings", savedDrawingsArray);
   }
 
   socket.on("join", (roomToJoin, nickname) => {
@@ -157,12 +163,45 @@ io.on("connection", function (socket) {
     return;
   });
 
-  socket.on("timeToCheckFacit", function (roomToCheck) {
+  socket.on("saveThisDrawing", function (drawingToSave, roomThatSaved, results, timeH, timeM, timeS) {
+
+    let time = timeH + ":" + timeM + ":" + timeS
+
+    let newDrawing = {
+      name: roomThatSaved,
+      imageField: drawingToSave,
+      timeTaken: time,
+      result: results
+    }
+
+    savedDrawingsArray.push(newDrawing)
+    return;
+  });
+
+
+  socket.on("timeToCheckFacit", function (roomToCheck, userWhosDone) {
 
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
 
       if (room.roomName == roomToCheck) {
+
+
+        for (let i = 0; i < room.users.length; i++) {
+          const thisUser = room.users[i];
+
+          if (thisUser.nickname === userWhosDone) {
+            thisUser.isDone = true;
+          }
+
+          if (thisUser.isDone === false) {
+            io.in(roomToCheck).emit("waitingForEveryOne", room.users)
+            return
+          }
+
+        }
+
+        io.in(roomToCheck).emit("waitingForEveryOne", room.users)
 
         let count = [0, 0];
         for (let i in room.facit) {
@@ -180,14 +219,6 @@ io.on("connection", function (socket) {
         room.time.stop();
         let roomTime = room.time.time()
         io.in(roomToCheck).emit("gameOver", percentage, roomTime)
-
-
-
-
-        console.log(room.time.time());
-
-        //console.log(room.time);
-
         return;
 
       }
