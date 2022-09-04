@@ -175,6 +175,7 @@ io.on("connection", function (socket) {
     }
 
     savedDrawingsArray.push(newDrawing)
+    io.in(roomThatSaved).emit("drawingSaved")
     return;
   });
 
@@ -186,21 +187,36 @@ io.on("connection", function (socket) {
 
       if (room.roomName == roomToCheck) {
 
+        for (let i = 0; i < room.users.length; i++) {
+          const userX = room.users[i];
+          if (userX.nickname === userWhosDone) {
+            userX.isDone = true;
+            console.log("här uppe");
+          }
+          
+        }
+
 
         for (let i = 0; i < room.users.length; i++) {
           const thisUser = room.users[i];
 
-          if (thisUser.nickname === userWhosDone) {
-            thisUser.isDone = true;
-          }
+          // console.log("thisuser: " + thisUser.nickname);
+          // console.log("userdone: " + userWhosDone);
+
+          // if (thisUser.nickname === userWhosDone) {
+          //   thisUser.isDone = true;
+          //   console.log("här uppe");
+          // }
 
           if (thisUser.isDone === false) {
             io.in(roomToCheck).emit("waitingForEveryOne", room.users)
+            console.log("här nu");
             return
           }
 
         }
 
+        console.log("här nere");
         io.in(roomToCheck).emit("waitingForEveryOne", room.users)
 
         let count = [0, 0];
