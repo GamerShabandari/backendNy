@@ -193,20 +193,12 @@ io.on("connection", function (socket) {
             userX.isDone = true;
             console.log("här uppe");
           }
-          
+
         }
 
 
         for (let i = 0; i < room.users.length; i++) {
           const thisUser = room.users[i];
-
-          // console.log("thisuser: " + thisUser.nickname);
-          // console.log("userdone: " + userWhosDone);
-
-          // if (thisUser.nickname === userWhosDone) {
-          //   thisUser.isDone = true;
-          //   console.log("här uppe");
-          // }
 
           if (thisUser.isDone === false) {
             io.in(roomToCheck).emit("waitingForEveryOne", room.users)
@@ -216,7 +208,6 @@ io.on("connection", function (socket) {
 
         }
 
-        console.log("här nere");
         io.in(roomToCheck).emit("waitingForEveryOne", room.users)
 
         let count = [0, 0];
@@ -232,6 +223,8 @@ io.on("connection", function (socket) {
         }
         room.gameOver = true;
         let percentage = (count[0] / count[1]) * 100 + "%";
+        parseFloat(percentage)
+        Math.round(percentage)
         room.time.stop();
         let roomTime = room.time.time()
         io.in(roomToCheck).emit("gameOver", percentage, roomTime)
