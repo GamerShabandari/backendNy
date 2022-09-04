@@ -157,12 +157,29 @@ io.on("connection", function (socket) {
     return;
   });
 
-  socket.on("timeToCheckFacit", function (roomToCheck) {
+  socket.on("timeToCheckFacit", function (roomToCheck, userWhosDone) {
 
     for (let i = 0; i < roomArray.length; i++) {
       const room = roomArray[i];
 
       if (room.roomName == roomToCheck) {
+
+
+        for (let i = 0; i < room.users.length; i++) {
+          const thisUser = room.users[i];
+
+          if (thisUser.nickname === userWhosDone) {
+            thisUser.isDone = true;
+          }
+
+          if (thisUser.isDone === false) {
+            io.in(roomToCheck).emit("waitingForEveryOne", room.users)
+            return
+          }
+
+        }
+
+        io.in(roomToCheck).emit("waitingForEveryOne", room.users)
 
         let count = [0, 0];
         for (let i in room.facit) {
