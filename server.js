@@ -6,7 +6,6 @@ const server = require("http").createServer(app);
 const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
 let colorsArray = require("./assets/colorPicker.json");
-let fieldsStartArray = require("./assets/fields.json");
 
 const fs = require('fs');
 const { Timer } = require('timer-node');
@@ -31,7 +30,6 @@ function getFields() {
 
 function getFacit() {
   let numberFacit = Math.floor( Math.random() * ( 1 + 5 - 1 ) ) + 1;
-  console.log("number facit" + numberFacit);
   const data = JSON.parse(fs.readFileSync('./assets/facit' +numberFacit+ '.json', 'utf8'))
   return (data);
 };
@@ -151,7 +149,6 @@ io.on("connection", function (socket) {
 
           if (pixel.position === fieldToDraw.position) {
             pixel.color = fieldToDraw.color;
-            //console.log(fieldsStartArray);
             io.in(roomToDraw).emit("drawing", fieldToDraw)
             return
 
