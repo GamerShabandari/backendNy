@@ -222,9 +222,9 @@ io.on("connection", function (socket) {
           }
         }
         room.gameOver = true;
-        let percentage = (count[0] / count[1]) * 100 + "%";
-        parseFloat(percentage)
-        Math.round(percentage)
+        let percentage = (count[0] / count[1]) * 100;
+        Number(percentage)
+        percentage = Math.round(percentage)
         room.time.stop();
         let roomTime = room.time.time()
         io.in(roomToCheck).emit("gameOver", percentage, roomTime)
