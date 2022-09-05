@@ -1,15 +1,26 @@
 [
-    {
-        "color": "green"
-    }, 
 
+    {
+        "color": "blue"
+    }, 
+    {
+        "color": "lightblue"
+    }, 
+    {
+        "color": "lightpink"
+    }, 
+    {
+        "color": "orange"
+    }, 
     {
         "color": "yellow"
     }, 
-
     {
-        "color": "orange"
-    },
+        "color": "Bisque"
+    }, 
+    {
+        "color": "red"
+    }, 
 
     {
          "color":"black"

@@ -6,8 +6,8 @@ const server = require("http").createServer(app);
 const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
 let colorsArray = require("./assets/colorPicker.json");
-let facitArray = require("./assets/facit.json");
 let fieldsStartArray = require("./assets/fields.json");
+
 const fs = require('fs');
 const { Timer } = require('timer-node');
 
@@ -26,6 +26,13 @@ let savedDrawingsArray = [];
 
 function getFields() {
   const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
+  return (data);
+};
+
+function getFacit() {
+  let numberFacit = Math.floor( Math.random() * ( 1 + 5 - 1 ) ) + 1;
+  console.log("number facit" + numberFacit);
+  const data = JSON.parse(fs.readFileSync('./assets/facit' +numberFacit+ '.json', 'utf8'))
   return (data);
 };
 
@@ -53,7 +60,7 @@ io.on("connection", function (socket) {
           socket.join(roomToJoin);
           io.in(roomToJoin).emit("history", room.fields)
 
-          if (room.users.length == 4) {
+          if (room.users.length == 8) {
             room.roomIsFull = true;
           }
           return
@@ -73,7 +80,7 @@ io.on("connection", function (socket) {
     let newRoom = {
       roomName: roomToJoin,
       users: [nickname],
-      facit: facitArray,
+      facit: getFacit(),
       fields: getFields(),
       colors: [...colorsArray],
       roomIsFull: false,
@@ -82,7 +89,7 @@ io.on("connection", function (socket) {
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
-    console.log(newRoom);
+    //console.log(newRoom);
 
   });
 
@@ -144,7 +151,7 @@ io.on("connection", function (socket) {
 
           if (pixel.position === fieldToDraw.position) {
             pixel.color = fieldToDraw.color;
-            console.log(fieldsStartArray);
+            //console.log(fieldsStartArray);
             io.in(roomToDraw).emit("drawing", fieldToDraw)
             return
 
@@ -202,7 +209,7 @@ io.on("connection", function (socket) {
 
           if (thisUser.isDone === false) {
             io.in(roomToCheck).emit("waitingForEveryOne", room.users)
-            console.log("här nu");
+            //console.log("här nu");
             return
           }
 
