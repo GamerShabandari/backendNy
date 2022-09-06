@@ -29,8 +29,8 @@ function getFields() {
 };
 
 function getFacit() {
-  let numberFacit = Math.floor( Math.random() * ( 1 + 5 - 1 ) ) + 1;
-  const data = JSON.parse(fs.readFileSync('./assets/facit' +numberFacit+ '.json', 'utf8'))
+  let numberFacit = Math.floor(Math.random() * (1 + 5 - 1)) + 1;
+  const data = JSON.parse(fs.readFileSync('./assets/facit' + numberFacit + '.json', 'utf8'))
   return (data);
 };
 
@@ -71,8 +71,6 @@ io.on("connection", function (socket) {
 
       }
     }
-
-
 
     const roomTimerLabel = new Timer({ label: roomToJoin + '-timer' })
     roomTimerLabel.start();
@@ -156,11 +154,8 @@ io.on("connection", function (socket) {
             return
 
           }
-
         }
-
       }
-
     }
   });
 
@@ -198,12 +193,8 @@ io.on("connection", function (socket) {
           const userX = room.users[i];
           if (userX.nickname === userWhosDone) {
             userX.isDone = true;
-            // console.log("här uppe");
           }
-
         }
-
-
         for (let i = 0; i < room.users.length; i++) {
           const thisUser = room.users[i];
 
@@ -243,36 +234,18 @@ io.on("connection", function (socket) {
 
   socket.on("disconnect", function () {
 
-    //Hela  rummet
-    //console.log(socket.room);
-    //nickname objektet som ska tas bort
-    //console.log(socket.id )
-
-    //Ta bort pelle från rum (i array)
-    //if rummet är tomt, ta bort rummet
-
     for (let e = 0; e < roomArray.length; e++) {
-      //console.log(roomArray.length);
       const room = roomArray[e];
-      //console.log("innan splice" , room.users);
       if (room === socket.room) {
         for (let i = 0; i < room.users.length; i++) {
           const user = room.users[i];
           if (user === socket.id) {
-            console.log("här var: " + room.users.length);
             room.users.splice(i, 1);
-          //  io.in(room).emit("usersUpdate", room.users)
-          console.log("här är nu: " + room.users.length);
-          console.log(room.roomName);
-          io.in(room.roomName).emit("usersUpdate", room.users)
-           
-            //console.log("efter splice" , room.users);
-            //console.log(room.users.length);
-            if(room.users.length === 0){
+            io.in(room.roomName).emit("usersUpdate", room.users)
+            if (room.users.length === 0) {
               roomArray.splice(e, 1);
-              //console.log(roomArray.length);
+
             }
-           // io.emit("usersUpdate");
             io.emit("availableRooms", roomArray);
             return;
           }
