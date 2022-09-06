@@ -6,8 +6,7 @@ const server = require("http").createServer(app);
 const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
 let colorsArray = require("./assets/colorPicker.json");
-let facitArray = require("./assets/facit.json");
-let fieldsStartArray = require("./assets/fields.json");
+
 const fs = require('fs');
 const { Timer } = require('timer-node');
 
@@ -26,6 +25,12 @@ let savedDrawingsArray = [];
 
 function getFields() {
   const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
+  return (data);
+};
+
+function getFacit() {
+  let numberFacit = Math.floor( Math.random() * ( 1 + 5 - 1 ) ) + 1;
+  const data = JSON.parse(fs.readFileSync('./assets/facit' +numberFacit+ '.json', 'utf8'))
   return (data);
 };
 
@@ -51,9 +56,11 @@ io.on("connection", function (socket) {
         if (room.roomIsFull === false && room.gameOver === false) {
           room.users.push(nickname)
           socket.join(roomToJoin);
+          socket.id = nickname;
+          socket.room = room;
           io.in(roomToJoin).emit("history", room.fields)
 
-          if (room.users.length == 4) {
+          if (room.users.length == 8) {
             room.roomIsFull = true;
           }
           return
@@ -73,7 +80,7 @@ io.on("connection", function (socket) {
     let newRoom = {
       roomName: roomToJoin,
       users: [nickname],
-      facit: facitArray,
+      facit: getFacit(),
       fields: getFields(),
       colors: [...colorsArray],
       roomIsFull: false,
@@ -82,7 +89,8 @@ io.on("connection", function (socket) {
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
-    console.log(newRoom);
+    socket.id = nickname;
+    socket.room = newRoom;
 
   });
 
@@ -144,7 +152,6 @@ io.on("connection", function (socket) {
 
           if (pixel.position === fieldToDraw.position) {
             pixel.color = fieldToDraw.color;
-            console.log(fieldsStartArray);
             io.in(roomToDraw).emit("drawing", fieldToDraw)
             return
 
@@ -175,6 +182,7 @@ io.on("connection", function (socket) {
     }
 
     savedDrawingsArray.push(newDrawing)
+    io.in(roomThatSaved).emit("drawingSaved")
     return;
   });
 
@@ -186,13 +194,18 @@ io.on("connection", function (socket) {
 
       if (room.roomName == roomToCheck) {
 
+        for (let i = 0; i < room.users.length; i++) {
+          const userX = room.users[i];
+          if (userX.nickname === userWhosDone) {
+            userX.isDone = true;
+            // console.log("här uppe");
+          }
+
+        }
+
 
         for (let i = 0; i < room.users.length; i++) {
           const thisUser = room.users[i];
-
-          if (thisUser.nickname === userWhosDone) {
-            thisUser.isDone = true;
-          }
 
           if (thisUser.isDone === false) {
             io.in(roomToCheck).emit("waitingForEveryOne", room.users)
@@ -215,7 +228,9 @@ io.on("connection", function (socket) {
           }
         }
         room.gameOver = true;
-        let percentage = (count[0] / count[1]) * 100 + "%";
+        let percentage = (count[0] / count[1]) * 100;
+        Number(percentage)
+        percentage = Math.round(percentage)
         room.time.stop();
         let roomTime = room.time.time()
         io.in(roomToCheck).emit("gameOver", percentage, roomTime)
@@ -227,7 +242,45 @@ io.on("connection", function (socket) {
 
 
   socket.on("disconnect", function () {
-    console.log("user disconnected");
+
+    //Hela  rummet
+    //console.log(socket.room);
+    //nickname objektet som ska tas bort
+    //console.log(socket.id )
+
+    //Ta bort pelle från rum (i array)
+    //if rummet är tomt, ta bort rummet
+
+    for (let e = 0; e < roomArray.length; e++) {
+      //console.log(roomArray.length);
+      const room = roomArray[e];
+      //console.log("innan splice" , room.users);
+      if (room === socket.room) {
+        for (let i = 0; i < room.users.length; i++) {
+          const user = room.users[i];
+          if (user === socket.id) {
+            console.log("här var: " + room.users.length);
+            room.users.splice(i, 1);
+          //  io.in(room).emit("usersUpdate", room.users)
+          console.log("här är nu: " + room.users.length);
+          console.log(room.roomName);
+          io.in(room.roomName).emit("usersUpdate", room.users)
+           
+            //console.log("efter splice" , room.users);
+            //console.log(room.users.length);
+            if(room.users.length === 0){
+              roomArray.splice(e, 1);
+              //console.log(roomArray.length);
+            }
+           // io.emit("usersUpdate");
+            io.emit("availableRooms", roomArray);
+            return;
+          }
+        }
+      }
+    }
+
+
   });
 
 });
