@@ -13,7 +13,7 @@ const { Timer } = require('timer-node');
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://grid-painter-back.herokuapp.com/",
     methods: ["GET", "POST"],
     credentials: true,
   },
