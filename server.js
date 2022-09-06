@@ -9,7 +9,7 @@ let colorsArray = require("./assets/colorPicker.json");
 
 const fs = require('fs');
 const { Timer } = require('timer-node');
-const { LEGAL_TCP_SOCKET_OPTIONS } = require("mongodb");
+
 
 const io = socketIo(server, {
   cors: {
@@ -57,7 +57,7 @@ io.on("connection", function (socket) {
           room.users.push(nickname)
           socket.join(roomToJoin);
           socket.id = nickname;
-          socket.room = newRoom;
+          socket.room = room;
           io.in(roomToJoin).emit("history", room.fields)
 
           if (room.users.length == 8) {
@@ -244,11 +244,40 @@ io.on("connection", function (socket) {
 
 
   socket.on("disconnect", function () {
-    console.log(socket.room);
 
+    //Hela  rummet
+    console.log(socket.room);
+    //nickname objektet som ska tas bort
+    console.log(socket.id )
 
     //Ta bort pelle från rum (i array)
     //if rummet är tomt, ta bort rummet
+
+    for (let e = 0; e < roomArray.length; e++) {
+      console.log(roomArray.length);
+      const room = roomArray[e];
+      //console.log("innan splice" , room.users);
+      if (room === socket.room) {
+        for (let i = 0; i < room.users.length; i++) {
+          const user = room.users[i];
+          if (user === socket.id) {
+            room.users.splice(i, 1);
+          //  io.in(room).emit("usersUpdate", room.users)
+           
+            //console.log("efter splice" , room.users);
+            //console.log(room.users.length);
+            if(room.users.length === 0){
+              roomArray.splice(e, 1);
+              //console.log(roomArray.length);
+            }
+           // io.emit("usersUpdate");
+            io.emit("availableRooms", roomArray);
+            return;
+          }
+        }
+      }
+    }
+
 
   });
 
