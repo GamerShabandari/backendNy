@@ -11,7 +11,6 @@ const fs = require('fs');
 const { Timer } = require('timer-node');
 const { LEGAL_TCP_SOCKET_OPTIONS } = require("mongodb");
 
-
 const io = socketIo(server, {
   cors: {
     origin: "http://localhost:3000",
