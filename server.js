@@ -9,6 +9,7 @@ let colorsArray = require("./assets/colorPicker.json");
 
 const fs = require('fs');
 const { Timer } = require('timer-node');
+const { LEGAL_TCP_SOCKET_OPTIONS } = require("mongodb");
 
 
 const io = socketIo(server, {
@@ -56,6 +57,8 @@ io.on("connection", function (socket) {
         if (room.roomIsFull === false && room.gameOver === false) {
           room.users.push(nickname)
           socket.join(roomToJoin);
+          socket.id = nickname;
+          socket.room = newRoom;
           io.in(roomToJoin).emit("history", room.fields)
 
           if (room.users.length == 8) {
@@ -87,6 +90,8 @@ io.on("connection", function (socket) {
     }
     roomArray.push(newRoom)
     socket.join(roomToJoin);
+    socket.id = nickname;
+    socket.room = newRoom;
     //console.log(newRoom);
 
   });
@@ -240,8 +245,12 @@ io.on("connection", function (socket) {
 
 
   socket.on("disconnect", function () {
-    console.log("user disconnected");
-    
+    console.log(socket.room);
+
+
+    //Ta bort pelle från rum (i array)
+    //if rummet är tomt, ta bort rummet
+
   });
 
 });
