@@ -1,6 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const path = require("path");
+app.use(express.static(path.resolve(__dirname, "./client/build")));
+
 const cors = require("cors");
 const server = require("http").createServer(app);
 const port = process.env.PORT || 3001;
