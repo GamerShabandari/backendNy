@@ -1,8 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-const path = require("path");
-app.use(express.static(path.resolve(__dirname, "/client/build")));
 
 const cors = require("cors");
 var logger = require('morgan');
@@ -18,7 +16,7 @@ const { Timer } = require('timer-node');
 
 const io = socketIo(server, {
   cors: {
-    origin: "https://grid-painter-back.herokuapp.com/",
+    origin: "https://grid-painter-front.herokuapp.com/",
     methods: ["GET", "POST"],
     credentials: true,
   },
