@@ -5,7 +5,9 @@ const path = require("path");
 app.use(express.static(path.resolve(__dirname, "/client/build")));
 
 const cors = require("cors");
+var logger = require('morgan');
 const server = require("http").createServer(app);
+app.use(logger('dev'));
 const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
 let colorsArray = require("./assets/colorPicker.json");

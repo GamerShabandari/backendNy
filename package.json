@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node server.js",
-    "heroku-postbuild": "cd client && npm install && npm run build"
+    "start": "nodemon server.js",
+    "build": "node server.js"
   },
   "dependencies": {
     "body-parser": "^1.20.0",
@@ -22,7 +22,6 @@
   },
   "description": "",
   "main": "server.js",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GamerShabandari/backendNy.git"
