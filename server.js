@@ -6,6 +6,7 @@ const server = require("http").createServer(app);
 const port = process.env.PORT || 3001;
 const socketIo = require("socket.io");
 let colorsArray = require("./assets/colorPicker.json");
+let savedDrawingsArray = require('./assets/savedDrawings.json');
 
 const fs = require('fs');
 const { Timer } = require('timer-node');
@@ -21,7 +22,7 @@ const io = socketIo(server, {
 
 let roomArray = [];
 
-let savedDrawingsArray = [];
+//let savedDrawingsArray = [];
 
 function getFields() {
   const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
@@ -176,7 +177,14 @@ io.on("connection", function (socket) {
       result: results
     }
 
-    savedDrawingsArray.push(newDrawing)
+    let newArrayToSave = [...savedDrawingsArray, newDrawing]
+    newArrayToSaveSerialized = JSON.stringify(newArrayToSave)
+    //savedDrawingsArray.push(newDrawing)
+    fs.writeFile('./assets/savedDrawings.json', newArrayToSaveSerialized, 'utf8', function(err){
+      if (err) {
+        console.log(err);
+      }
+    });
     io.in(roomThatSaved).emit("drawingSaved")
     return;
   });
