@@ -11,7 +11,6 @@ let savedDrawingsArray = require('./assets/savedDrawings.json');
 const fs = require('fs');
 const { Timer } = require('timer-node');
 
-
 const io = socketIo(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -21,8 +20,6 @@ const io = socketIo(server, {
 });
 
 let roomArray = [];
-
-//let savedDrawingsArray = [];
 
 function getFields() {
   const data = JSON.parse(fs.readFileSync('./assets/fields.json', 'utf8'))
@@ -179,7 +176,7 @@ io.on("connection", function (socket) {
 
     let newArrayToSave = [...savedDrawingsArray, newDrawing]
     newArrayToSaveSerialized = JSON.stringify(newArrayToSave)
-    //savedDrawingsArray.push(newDrawing)
+    
     fs.writeFile('./assets/savedDrawings.json', newArrayToSaveSerialized, 'utf8', function(err){
       if (err) {
         console.log(err);
